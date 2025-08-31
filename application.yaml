@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeflow-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: '{{REPO_URL}}'
+    targetRevision: '{{REPO_BRANCH}}'
+    path: kubernetes-manifests/kubeflow
+  destination:
+    server: https://kubernetes.default.svc
+    # The namespace is managed by the kustomization.yaml from Kubeflow manifests
+    # but we set a default here.
+    namespace: kubeflow
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  # Ignore diffs on certain resources that Kubeflow/Knative controllers modify at runtime.
+  ignoreDifferences:
+  - group: "apps"
+    kind: "Deployment"
+    jsonPointers:
+    - /spec/replicas
+  - group: "autoscaling.kserve.io"
+    kind: "Metric"
+  - group: "serving.knative.dev"
+    kind: "Service"
+    jsonPointers:
+    - /metadata/annotations
+    - /metadata/labels
+    - /spec/template/metadata/annotations
+    - /spec/template/metadata/labels

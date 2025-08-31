@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# This is the official and recommended way to install Kubeflow.
+# It pulls in all necessary components, including Istio, Knative, Cert-Manager, KServe, and Kubeflow itself.
+# We pin to a specific version (v1.8.0) for a reproducible deployment.
+resources:
+  - https://github.com/kubeflow/manifests/tarball/v1.8.0
